@@ -1,0 +1,3 @@
+[submodule "Genesis-Plus-GX"]
+	path = Sources/GenesisPlusGX/Genesis-Plus-GX
+	url = https://github.com/ekeeke/Genesis-Plus-GX.git
