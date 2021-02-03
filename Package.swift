@@ -60,6 +60,7 @@ let package = Package(
                 "Genesis-Plus-GX/psp2/unzip.c",
             ],
             cSettings: [
+                .headerSearchPath("Genesis-Plus-GX/core"),
                 .headerSearchPath("Genesis-Plus-GX/core/m68k"),
                 .headerSearchPath("Genesis-Plus-GX/core/z80"),
                 .headerSearchPath("Genesis-Plus-GX/core/sound"),
@@ -70,6 +71,7 @@ let package = Package(
                 .headerSearchPath("Genesis-Plus-GX/core/cd_hw/libchdr/deps/libFLAC/include"),
                 .headerSearchPath("Genesis-Plus-GX/core/input_hw"),
                 .headerSearchPath("Genesis-Plus-GX/core/ntsc"),
+                
                 .headerSearchPath("Genesis-Plus-GX/psp2"),
                 
                 .define("USE_32BPP_RENDERING"),
