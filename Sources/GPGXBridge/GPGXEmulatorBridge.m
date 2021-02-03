@@ -8,12 +8,23 @@
 
 #import "GPGXEmulatorBridge.h"
 
+@import Foundation;
+
 @import DeltaCore;
 @import GenesisPlusGX;
+
+CGFloat GPGXVideoWidth = 720;
+CGFloat GPGXVideoHeight = 576;
+
+CGFloat GPGXFramesPerSecondPAL = 53203424.0 / (3420.0 * 313.0);
+CGFloat GPGXFramesPerSecondNTSC = 53693175.0 / (3420.0 * 262.0);
 
 @interface GPGXEmulatorBridge ()
 
 @property (nonatomic, copy, nullable, readwrite) NSURL *gameURL;
+
+@property (nonatomic, readonly) NSMutableData *audioBuffer;
+@property (nonatomic, readonly) NSMutableData *videoBuffer;
 
 @end
 
@@ -33,14 +44,46 @@
     return _emulatorBridge;
 }
 
+- (instancetype)init
+{
+    self = [super init];
+    if (self)
+    {
+        _audioBuffer = [[NSMutableData alloc] initWithLength:2048 * 2 * sizeof(int16_t)];
+        _videoBuffer = [[NSMutableData alloc] initWithLength:GPGXVideoWidth * GPGXVideoHeight * sizeof(uint32_t)];
+    }
+    
+    return self;
+}
+
 #pragma mark - Emulation State -
 
 - (void)startWithGameURL:(NSURL *)gameURL
 {
+    set_config_defaults();
+    
+    /* initialize bitmap */
+    memset(&bitmap, 0, sizeof(bitmap));
+    bitmap.width      = GPGXVideoWidth;
+    bitmap.height     = GPGXVideoHeight;
+    bitmap.pitch      = bitmap.width * sizeof(uint32_t);
+    bitmap.data       = (uint8_t *)self.videoBuffer.mutableBytes;
+    
+    if (!load_rom((char *)gameURL.fileSystemRepresentation))
+    {
+        NSLog(@"Failed to load ROM: %@", gameURL);
+        return;
+    }
+    
+    audio_init(48000, vdp_pal ? GPGXFramesPerSecondPAL : GPGXFramesPerSecondNTSC);
+    
+    system_init();
+    system_reset();
 }
 
 - (void)stop
 {
+    audio_shutdown();
 }
 
 - (void)pause
@@ -55,6 +98,33 @@
 
 - (void)runFrameAndProcessVideo:(BOOL)processVideo
 {
+    if (system_hw == SYSTEM_MCD)
+    {
+        system_frame_scd(!processVideo);
+    }
+    else if ((system_hw & SYSTEM_PBC) == SYSTEM_MD)
+    {
+        system_frame_gen(!processVideo);
+    }
+    else
+    {
+        system_frame_sms(!processVideo);
+    }
+    
+    CGRect viewport = CGRectMake(bitmap.viewport.x, bitmap.viewport.y, bitmap.viewport.w, bitmap.viewport.h);
+    if (!CGRectEqualToRect(viewport, self.videoRenderer.viewport))
+    {
+        self.videoRenderer.viewport = viewport;
+    }
+        
+    int samples = audio_update(self.audioBuffer.mutableBytes);
+    [self.audioRenderer.audioBuffer writeBuffer:self.audioBuffer.mutableBytes size:samples * 4];
+    
+    if (processVideo)
+    {
+        memcpy(self.videoRenderer.videoBuffer, self.videoBuffer.mutableBytes, self.videoBuffer.length);
+        [self.videoRenderer processFrame];
+    }
 }
 
 #pragma mark - Inputs -
@@ -110,7 +180,7 @@
 
 - (NSTimeInterval)frameDuration
 {
-    return (1.0 / 60.0);
+    return vdp_pal ? (1.0 / GPGXFramesPerSecondPAL) : (1.0 / GPGXFramesPerSecondNTSC);
 }
 
 #pragma mark - GenesisPlusGX -
