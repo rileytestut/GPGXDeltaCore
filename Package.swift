@@ -23,7 +23,33 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "GPGXDeltaCore",
-            dependencies: ["DeltaCore", "GenesisPlusGX"]
+            dependencies: ["DeltaCore", "GenesisPlusGX", "GPGXBridge"]
+        ),
+        .target(
+            name: "GPGXBridge",
+            dependencies: ["DeltaCore", "GenesisPlusGX"],
+            publicHeadersPath: "",
+            cSettings: [
+                .headerSearchPath("../GenesisPlusGX/Genesis-Plus-GX/core"),
+                .headerSearchPath("../GenesisPlusGX/Genesis-Plus-GX/core/m68k"),
+                .headerSearchPath("../GenesisPlusGX/Genesis-Plus-GX/core/z80"),
+                .headerSearchPath("../GenesisPlusGX/Genesis-Plus-GX/core/sound"),
+                .headerSearchPath("../GenesisPlusGX/Genesis-Plus-GX/core/cart_hw"),
+                .headerSearchPath("../GenesisPlusGX/Genesis-Plus-GX/core/cart_hw/svp"),
+                .headerSearchPath("../GenesisPlusGX/Genesis-Plus-GX/core/cd_hw"),
+                .headerSearchPath("../GenesisPlusGX/Genesis-Plus-GX/core/input_hw"),
+                .headerSearchPath("../GenesisPlusGX/Genesis-Plus-GX/core/ntsc"),
+                
+                .headerSearchPath("../GenesisPlusGX/Genesis-Plus-GX/psp2"),
+                
+                .define("USE_32BPP_RENDERING"),
+                .define("FLAC__HAS_OGG", to: "0"),
+                .define("HAVE_SYS_PARAM_H"),
+                .define("HAVE_LROUND"),
+                .define("PACKAGE_VERSION", to: "\"1.3.2\""),
+                .define("_7ZIP_ST"),
+                .define("LSB_FIRST")
+            ]
         ),
         .target(
             name: "GenesisPlusGX",
