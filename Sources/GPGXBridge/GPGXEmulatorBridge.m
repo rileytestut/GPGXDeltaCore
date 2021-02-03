@@ -131,14 +131,20 @@ CGFloat GPGXFramesPerSecondNTSC = 53693175.0 / (3420.0 * 262.0);
 
 - (void)activateInput:(NSInteger)inputValue value:(double)value
 {
+    int player = 0;
+    input.pad[player * 4] |= inputValue;
 }
 
 - (void)deactivateInput:(NSInteger)inputValue
 {
+    int player = 0;
+    input.pad[player * 4] &= ~inputValue;
 }
 
 - (void)resetInputs
 {
+    int player = 0;
+    input.pad[player * 4] = 0;
 }
 
 #pragma mark - Game Saves -

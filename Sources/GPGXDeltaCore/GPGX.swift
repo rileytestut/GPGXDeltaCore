@@ -40,7 +40,7 @@ public struct GPGX: DeltaCoreProtocol
 
     public var emulatorBridge: EmulatorBridging { GPGXEmulatorBridge.shared as! EmulatorBridging }
     
-    public var resourceBundle: Bundle { Bundle.main }
+    public var resourceBundle: Bundle { Bundle.module }
     
     private init()
     {
