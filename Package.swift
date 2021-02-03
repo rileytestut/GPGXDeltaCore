@@ -37,12 +37,24 @@ let package = Package(
                 "Genesis-Plus-GX/core/tremor",
                 "Genesis-Plus-GX/libretro/tremor",
                 
-                "Genesis-Plus-GX/psp2/Makefile",
-                "Genesis-Plus-GX/psp2/error.c",
-                "Genesis-Plus-GX/psp2/emumain.c",
-                "Genesis-Plus-GX/psp2/menu.c",
+                "Genesis-Plus-GX/core/cd_hw/libchdr",
+                
+                "Genesis-Plus-GX/core/cart_hw/svp/imageformat.txt",
+                "Genesis-Plus-GX/core/cart_hw/svp/svpdoc.txt",
+                
+                "Genesis-Plus-GX/core/m68k/readme.txt",
+                
+                "Genesis-Plus-GX/core/ntsc/changes.txt",
+                "Genesis-Plus-GX/core/ntsc/license.txt",
+                "Genesis-Plus-GX/core/ntsc/readme.txt",
+                "Genesis-Plus-GX/core/ntsc/sms_ntsc.txt",
+                
                 "Genesis-Plus-GX/psp2/db.json",
+                "Genesis-Plus-GX/psp2/emumain.c",
+                "Genesis-Plus-GX/psp2/error.c",
+                "Genesis-Plus-GX/psp2/Makefile",
                 "Genesis-Plus-GX/psp2/main.c",
+                "Genesis-Plus-GX/psp2/menu.c",                
                 
                 "Genesis-Plus-GX/appveyor.yml",
                 "Genesis-Plus-GX/HISTORY.txt",
