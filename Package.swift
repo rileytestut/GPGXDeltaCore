@@ -23,11 +23,15 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "GPGXDeltaCore",
-            dependencies: ["DeltaCore", "GenesisPlusGX", "GPGXBridge"]
+            dependencies: ["DeltaCore", "GenesisPlusGX", "GPGXSwift", "GPGXBridge"]
+        ),
+        .target(
+            name: "GPGXSwift",
+            dependencies: ["DeltaCore"]
         ),
         .target(
             name: "GPGXBridge",
-            dependencies: ["DeltaCore", "GenesisPlusGX"],
+            dependencies: ["DeltaCore", "GenesisPlusGX", "GPGXSwift"],
             publicHeadersPath: "",
             cSettings: [
                 .headerSearchPath("../GenesisPlusGX/Genesis-Plus-GX/core"),
