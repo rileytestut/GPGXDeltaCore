@@ -183,10 +183,28 @@ int GPGXGameSaveSize = 0x10000;
 
 - (void)saveSaveStateToURL:(NSURL *)URL
 {
+    NSMutableData *saveStateData = [NSMutableData dataWithLength:STATE_SIZE];
+    state_save(saveStateData.mutableBytes);
+    
+    NSError *error = nil;
+    if (![saveStateData writeToURL:URL options:NSDataWritingAtomic error:&error])
+    {
+        NSLog(@"[GPGXDeltaCore] Error saving Save State to %@. %@", URL, error);
+        return;
+    }
 }
 
 - (void)loadSaveStateFromURL:(NSURL *)URL
 {
+    NSError *error = nil;
+    NSData *saveStateData = [NSData dataWithContentsOfURL:URL options:0 error:&error];
+    if (saveStateData == nil)
+    {
+        NSLog(@"[GPGXDeltaCore] Error loading Save State from %@. %@", URL, error);
+        return;
+    }
+    
+    state_load((unsigned char *)saveStateData.bytes);
 }
 
 #pragma mark - Cheats -
