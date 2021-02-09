@@ -70,10 +70,11 @@ let package = Package(
             name: "GenesisPlusGX",
             exclude: [
                 "Genesis-Plus-GX/builds",
-                "Genesis-Plus-GX/gcw0",
                 "Genesis-Plus-GX/gx",
                 "Genesis-Plus-GX/libretro",
                 "Genesis-Plus-GX/sdl",
+                
+                "Genesis-Plus-GX/gcw0/opk-data",
                 
                 "Genesis-Plus-GX/core/tremor",
                 "Genesis-Plus-GX/libretro/tremor",
@@ -93,9 +94,18 @@ let package = Package(
                 "Genesis-Plus-GX/psp2/db.json",
                 "Genesis-Plus-GX/psp2/emumain.c",
                 "Genesis-Plus-GX/psp2/error.c",
+                "Genesis-Plus-GX/psp2/fileio.c",
                 "Genesis-Plus-GX/psp2/Makefile",
                 "Genesis-Plus-GX/psp2/main.c",
-                "Genesis-Plus-GX/psp2/menu.c",                
+                "Genesis-Plus-GX/psp2/menu.c",
+                "Genesis-Plus-GX/psp2/unzip.c",
+                
+                "Genesis-Plus-GX/gcw0/config.c",
+                "Genesis-Plus-GX/gcw0/error.c",
+                "Genesis-Plus-GX/gcw0/main.c",
+                "Genesis-Plus-GX/gcw0/Makefile",
+                "Genesis-Plus-GX/gcw0/opk_build.sh",
+                "Genesis-Plus-GX/gcw0/utils.c",
                 
                 "Genesis-Plus-GX/appveyor.yml",
                 "Genesis-Plus-GX/HISTORY.txt",
@@ -107,9 +117,11 @@ let package = Package(
             ],
             sources: [
                 "Genesis-Plus-GX/core",
+                
                 "Genesis-Plus-GX/psp2/config.c",
-                "Genesis-Plus-GX/psp2/fileio.c",
-                "Genesis-Plus-GX/psp2/unzip.c",
+                
+                "Genesis-Plus-GX/gcw0/fileio.c",
+                "Genesis-Plus-GX/gcw0/unzip.c",
             ],
             cSettings: [
                 .headerSearchPath("Genesis-Plus-GX/core"),
