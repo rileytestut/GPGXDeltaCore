@@ -24,6 +24,13 @@ let package = Package(
         .target(
             name: "GPGXDeltaCore",
             dependencies: ["DeltaCore", "GenesisPlusGX", "GPGXSwift", "GPGXBridge"],
+            exclude: [
+                "Resources/Controller Skin/info.json",
+                "Resources/Controller Skin/iphone_portrait.pdf",
+                "Resources/Controller Skin/iphone_landscape.pdf",
+                "Resources/Controller Skin/iphone_edgetoedge_portrait.pdf",
+                "Resources/Controller Skin/iphone_edgetoedge_landscape.pdf"
+            ],
             resources: [
                 .copy("Resources/Controller Skin/Standard.deltaskin"),
                 .copy("Resources/Standard.deltamapping"),
