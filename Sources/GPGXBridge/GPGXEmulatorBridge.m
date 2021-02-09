@@ -19,6 +19,8 @@ CGFloat GPGXVideoHeight = 576;
 CGFloat GPGXFramesPerSecondPAL = 53203424.0 / (3420.0 * 313.0);
 CGFloat GPGXFramesPerSecondNTSC = 53693175.0 / (3420.0 * 262.0);
 
+int GPGXGameSaveSize = 0x10000;
+
 @interface GPGXEmulatorBridge ()
 
 @property (nonatomic, copy, nullable, readwrite) NSURL *gameURL;
@@ -151,10 +153,30 @@ CGFloat GPGXFramesPerSecondNTSC = 53693175.0 / (3420.0 * 262.0);
 
 - (void)saveGameSaveToURL:(NSURL *)URL
 {
+    NSData *saveData = [NSData dataWithBytes:sram.sram length:GPGXGameSaveSize];
+    
+    NSError *error = nil;
+    if (![saveData writeToURL:URL options:NSDataWritingAtomic error:&error])
+    {
+        NSLog(@"[GPGXDeltaCore] Error saving Game Save to %@. %@", URL, error);
+        return;
+    }
+    
+    sram.crc = (unsigned int)crc32(0, sram.sram, GPGXGameSaveSize);
 }
 
 - (void)loadGameSaveFromURL:(NSURL *)URL
 {
+    NSError *error = nil;
+    NSData *saveData = [NSData dataWithContentsOfURL:URL options:0 error:&error];
+    if (saveData == nil)
+    {
+        NSLog(@"[GPGXDeltaCore] Error loading Game Save from %@. %@", URL, error);
+        return;
+    }
+    
+    memcpy(sram.sram, saveData.bytes, GPGXGameSaveSize);
+    sram.crc = (unsigned int)crc32(0, sram.sram, GPGXGameSaveSize);
 }
 
 #pragma mark - Save States -
