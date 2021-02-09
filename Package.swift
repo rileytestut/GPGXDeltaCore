@@ -106,7 +106,6 @@ let package = Package(
                 "Genesis-Plus-GX/README.md",
             ],
             sources: [
-                "dummy.c",
                 "Genesis-Plus-GX/core",
                 "Genesis-Plus-GX/psp2/config.c",
                 "Genesis-Plus-GX/psp2/fileio.c",
