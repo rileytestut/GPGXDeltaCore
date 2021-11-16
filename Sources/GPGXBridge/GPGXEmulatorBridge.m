@@ -30,6 +30,9 @@ int GPGXGameSaveSize = 0x10000;
 
 @end
 
+__attribute__((visibility("hidden")))
+uint8 vram[0x10000];
+
 @implementation GPGXEmulatorBridge
 @synthesize audioRenderer = _audioRenderer;
 @synthesize videoRenderer = _videoRenderer;
