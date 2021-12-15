@@ -26,10 +26,10 @@ let package = Package(
             dependencies: ["DeltaCore", "GenesisPlusGX", "GPGXSwift", "GPGXBridge"],
             exclude: [
                 "Resources/Controller Skin/info.json",
-                "Resources/Controller Skin/iphone_portrait.pdf",
-                "Resources/Controller Skin/iphone_landscape.pdf",
-                "Resources/Controller Skin/iphone_edgetoedge_portrait.pdf",
-                "Resources/Controller Skin/iphone_edgetoedge_landscape.pdf"
+                "Resources/Controller Skin/iphone_portrait.png",
+                "Resources/Controller Skin/iphone_landscape.png",
+                "Resources/Controller Skin/iphone_edgetoedge_portrait.png",
+                "Resources/Controller Skin/iphone_edgetoedge_landscape.png"
             ],
             resources: [
                 .copy("Resources/Controller Skin/Standard.deltaskin"),
@@ -77,7 +77,6 @@ let package = Package(
                 "Genesis-Plus-GX/gcw0/opk-data",
                 
                 "Genesis-Plus-GX/core/tremor",
-                "Genesis-Plus-GX/libretro/tremor",
                 
                 "Genesis-Plus-GX/core/cd_hw/libchdr",
                 
