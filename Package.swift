@@ -29,7 +29,11 @@ let package = Package(
                 "Resources/Controller Skin/iphone_portrait.png",
                 "Resources/Controller Skin/iphone_landscape.png",
                 "Resources/Controller Skin/iphone_edgetoedge_portrait.png",
-                "Resources/Controller Skin/iphone_edgetoedge_landscape.png"
+                "Resources/Controller Skin/iphone_edgetoedge_landscape.png",
+                "Resources/Controller Skin/ipad_portrait_small.png",
+                "Resources/Controller Skin/ipad_portrait_medium.png",
+                "Resources/Controller Skin/ipad_portrait_large.png",
+                "Resources/Controller Skin/ipad_landscape.pdf"
             ],
             resources: [
                 .copy("Resources/Controller Skin/Standard.deltaskin"),
