@@ -143,7 +143,7 @@ int GPGXGameSaveSize = 0x10000;
 
 - (void)resetInputs
 {
-    for(int player = 0; player < 2; player++)
+    for (int playerIndex = 0; playerIndex < 2; playerIndex++)
     {
         input.pad[player * 4] = 0;
     }
