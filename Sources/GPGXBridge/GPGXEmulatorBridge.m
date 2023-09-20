@@ -131,12 +131,12 @@ int GPGXGameSaveSize = 0x10000;
 
 #pragma mark - Inputs -
 
-- (void)activateInput:(NSInteger)inputValue value:(double)value at:(NSInteger)playerIndex
+- (void)activateInput:(NSInteger)inputValue value:(double)value playerIndex:(NSInteger)playerIndex
 {
     input.pad[playerIndex * 4] |= inputValue;
 }
 
-- (void)deactivateInput:(NSInteger)inputValue at:(NSInteger)playerIndex
+- (void)deactivateInput:(NSInteger)inputValue playerIndex:(NSInteger)playerIndex
 {
     input.pad[playerIndex * 4] &= ~inputValue;
 }
