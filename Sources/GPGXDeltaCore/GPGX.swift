@@ -9,9 +9,12 @@
 import Foundation
 import AVFoundation
 
-import DeltaCore
+@preconcurrency import DeltaCore
+
+#if SWIFT_PACKAGE
 @_exported import GPGXBridge
 @_exported import GPGXSwift
+#endif
 
 extension GPGXGameInput: Input
 {
@@ -20,7 +23,7 @@ extension GPGXGameInput: Input
     }
 }
 
-public struct GPGX: DeltaCoreProtocol
+public struct GPGX: DeltaCoreProtocol, Sendable
 {
     public static let core = GPGX()
     
@@ -31,16 +34,19 @@ public struct GPGX: DeltaCoreProtocol
     public var gameInputType: Input.Type { GPGXGameInput.self }
     public var gameSaveFileExtension: String { "sav" }
     
-    public let audioFormat = AVAudioFormat(commonFormat: .pcmFormatInt16, sampleRate: 48000, channels: 2, interleaved: true)!
-    public let videoFormat = VideoFormat(format: .bitmap(.bgra8), dimensions: CGSize(width: 720, height: 576))
+    public var audioFormat: AVAudioFormat { AVAudioFormat(commonFormat: .pcmFormatInt16, sampleRate: 48000, channels: 2, interleaved: true)! }
+    public var videoFormat: VideoFormat { VideoFormat(format: .bitmap(.bgra8), dimensions: CGSize(width: 720, height: 576)) }
 
     public var supportedCheatFormats: Set<CheatFormat> {
         return []
     }
-
-    public var emulatorBridge: EmulatorBridging { GPGXEmulatorBridge.shared as! EmulatorBridging }
     
+    #if SWIFT_PACKAGE
+    public var emulatorBridge: EmulatorBridging { GPGXEmulatorBridge.shared as! EmulatorBridging }
     public var resourceBundle: Bundle { Bundle.module }
+    #else
+    public var emulatorBridge: EmulatorBridging { GPGXEmulatorBridge.shared }
+    #endif
     
     private init()
     {

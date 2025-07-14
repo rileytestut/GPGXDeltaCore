@@ -11,7 +11,12 @@
 @import Foundation;
 
 @import DeltaCore;
+
+#if SWIFT_PACKAGE
 @import GenesisPlusGX;
+#else
+#import "shared.h"
+#endif
 
 CGFloat GPGXVideoWidth = 720;
 CGFloat GPGXVideoHeight = 576;

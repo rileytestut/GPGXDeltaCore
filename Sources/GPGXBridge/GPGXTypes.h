@@ -9,7 +9,7 @@
 #if SWIFT_PACKAGE
 @import CDeltaCore;
 #else
-@import DeltaCore;
+#import <DeltaCore/DeltaCore.h>
 #endif
 
 // Extensible Enums
