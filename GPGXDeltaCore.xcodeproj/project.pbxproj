@@ -74,6 +74,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		D5B44C0E2E29A7A100EA8B6C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D5B44BF52E29A75100EA8B6C /* DeltaCore.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = BF46895C1AACF36800A2586D;
+			remoteInfo = DeltaCore;
+		};
 		D5DF873F2E25A7CB005CCF92 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D5DC4E3B2E258AE800764740 /* Project object */;
@@ -96,6 +103,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		D5B44BF52E29A75100EA8B6C /* DeltaCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DeltaCore.xcodeproj; path = ../DeltaCore/DeltaCore.xcodeproj; sourceTree = SOURCE_ROOT; };
 		D5DC53492E258D3600764740 /* libGenesisPlusGX.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libGenesisPlusGX.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D5DF83B32E259BE0005CCF92 /* imageformat.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = imageformat.txt; sourceTree = "<group>"; };
 		D5DF83B42E259BE0005CCF92 /* ssp16.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ssp16.h; sourceTree = "<group>"; };
@@ -293,11 +301,27 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D5B44BF42E29A74200EA8B6C /* Dependencies */ = {
+			isa = PBXGroup;
+			children = (
+				D5B44BF52E29A75100EA8B6C /* DeltaCore.xcodeproj */,
+			);
+			name = Dependencies;
+			sourceTree = "<group>";
+		};
+		D5B44C092E29A79700EA8B6C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		D5DC4E3A2E258AE800764740 = {
 			isa = PBXGroup;
 			children = (
 				D5DF872F2E25A6E0005CCF92 /* GPGXDeltaCore */,
 				D5DF85F62E259BE0005CCF92 /* GenesisPlusGX */,
+				D5B44BF42E29A74200EA8B6C /* Dependencies */,
 				D5DF86D52E259FEF005CCF92 /* Frameworks */,
 				D5DC4E452E258AE800764740 /* Products */,
 			);
@@ -691,6 +715,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D5B44C0F2E29A7A100EA8B6C /* PBXTargetDependency */,
 				D5DF87402E25A7CB005CCF92 /* PBXTargetDependency */,
 			);
 			name = GPGXDeltaCore;
@@ -731,6 +756,12 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D5DC4E452E258AE800764740 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = D5B44C092E29A79700EA8B6C /* Products */;
+					ProjectRef = D5B44BF52E29A75100EA8B6C /* DeltaCore.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				D5DF87202E25A670005CCF92 /* GPGXDeltaCore */,
@@ -827,6 +858,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		D5B44C0F2E29A7A100EA8B6C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = DeltaCore;
+			targetProxy = D5B44C0E2E29A7A100EA8B6C /* PBXContainerItemProxy */;
+		};
 		D5DF87402E25A7CB005CCF92 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = D5DC53482E258D3600764740 /* GenesisPlusGX */;
