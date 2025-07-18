@@ -1038,6 +1038,7 @@
 					"Genesis-Plus-GX/gcw0/main.c",
 					"Genesis-Plus-GX/gcw0/utils.c",
 				);
+				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				OTHER_CFLAGS = (
 					"-DUSE_32BPP_RENDERING",
@@ -1095,6 +1096,7 @@
 					"Genesis-Plus-GX/gcw0/main.c",
 					"Genesis-Plus-GX/gcw0/utils.c",
 				);
+				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				OTHER_CFLAGS = (
 					"-DUSE_32BPP_RENDERING",

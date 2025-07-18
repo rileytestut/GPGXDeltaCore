@@ -15,7 +15,12 @@
 #if SWIFT_PACKAGE
 @import GenesisPlusGX;
 #else
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Weverything"
 #import "shared.h"
+#pragma clang diagnostic pop
+
 #endif
 
 CGFloat GPGXVideoWidth = 720;
