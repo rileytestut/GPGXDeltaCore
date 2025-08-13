@@ -38,7 +38,9 @@ public struct GPGX: DeltaCoreProtocol, Sendable
     public var videoFormat: VideoFormat { VideoFormat(format: .bitmap(.bgra8), dimensions: CGSize(width: 720, height: 576)) }
 
     public var supportedCheatFormats: Set<CheatFormat> {
-        return []
+        let gameGenieFormat = CheatFormat(name: NSLocalizedString("Game Genie", comment: ""), format: "XXXX-YYYY", type: .gameGenie, allowedCodeCharacters: CharacterSet.uppercaseLetters.union(.decimalDigits))
+        let actionReplayFormat = CheatFormat(name: NSLocalizedString("Action Replay", comment: ""), format: "XXXXXX:YYYY", type: .actionReplay)
+        return [gameGenieFormat, actionReplayFormat]
     }
     
     #if SWIFT_PACKAGE
