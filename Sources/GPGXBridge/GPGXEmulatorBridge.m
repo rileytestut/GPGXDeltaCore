@@ -260,23 +260,18 @@ int GPGXGameSaveSize = 0x10000;
 
 - (BOOL)addCheatCode:(NSString *)cheatCode type:(NSString *)type
 {
-    
-    
     NSMutableString *mutableCheatCode = [cheatCode mutableCopy];
-    
-//    if ([type isEqualToString:CheatTypeActionReplay])
-//    {
-//        //
-//    }
-//    else if ([type isEqualToString:CheatTypeGameGenie])
-//    {
-//        [mutableCheatCode insertString:@"-" atIndex:4];
-//    }
-//    
-    NSInteger length = decode_cheat(mutableCheatCode.UTF8String, self.cheatCount);
+    char cheatCString[32];
+    if (![mutableCheatCode getCString:cheatCString maxLength:sizeof(cheatCString) encoding:NSUTF8StringEncoding])
+    {
+        NSLog(@"Failed to convert to cString: %@", mutableCheatCode);
+        return NO;
+    }
+    int cheatCount = (int)self.cheatCount;
+    NSInteger length = decode_cheat(cheatCString, cheatCount);
     if (length == 0)
     {
-        NSLog(@"Failed to decode cheat: %@", cheatCode);
+        NSLog(@"Failed to decode cheat: %@", mutableCheatCode);
         return NO;
     }
     
