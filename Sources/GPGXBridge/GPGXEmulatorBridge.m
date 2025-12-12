@@ -139,6 +139,19 @@ int GPGXGameSaveSize = 0x10000;
     }
 }
 
+- (nullable NSData *)readMemoryAtAddress:(NSInteger)address size:(NSInteger)size
+{
+    if (address + size > 0x10000)
+    {
+        // Beyond RAM bounds, return nil.
+        return nil;
+    }
+    
+    void *bytes = (work_ram + address);
+    NSData *data = [NSData dataWithBytesNoCopy:bytes length:size freeWhenDone:NO];
+    return data;
+}
+
 #pragma mark - Inputs -
 
 - (void)activateInput:(NSInteger)inputValue value:(double)value playerIndex:(NSInteger)playerIndex
