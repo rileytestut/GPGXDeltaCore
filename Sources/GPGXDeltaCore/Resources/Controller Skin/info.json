@@ -740,9 +740,7 @@
       "splitView": {
         "portrait": {
           "assets": {
-            "small": "ipad_portrait_small.png",
-            "medium": "ipad_portrait_medium.png",
-            "large": "ipad_portrait_large.png"
+            "resizable": "ipad_portrait.pdf"
           },
           "items": [
             {
