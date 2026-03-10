@@ -260,27 +260,91 @@ int GPGXGameSaveSize = 0x10000;
 
 - (BOOL)addCheatCode:(NSString *)cheatCode type:(NSString *)type
 {
-    NSMutableString *mutableCheatCode = [cheatCode mutableCopy];
-    char cheatCString[32];
-    if (![mutableCheatCode getCString:cheatCString maxLength:sizeof(cheatCString) encoding:NSUTF8StringEncoding])
+    NSArray<NSString *> *codes = [cheatCode componentsSeparatedByString:@"\n"];
+    
+    for (NSString *code in codes)
     {
-        NSLog(@"Failed to convert to cString: %@", mutableCheatCode);
-        return NO;
+        // Normalize input first: trim whitespace/newlines and uppercase for consistent validation
+        NSString *normalized = [[code stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] uppercaseString];
+
+        // Build legal character set based on type
+        NSMutableCharacterSet *legalCharacters = nil;
+        if ([type isEqualToString:CheatTypeActionReplay])
+        {
+            legalCharacters = [[NSMutableCharacterSet hexadecimalCharacterSet] mutableCopy];
+            [legalCharacters addCharactersInString:@":"];
+        }
+        else if ([type isEqualToString:CheatTypeGameGenie])
+        {
+            legalCharacters = [[NSMutableCharacterSet characterSetWithCharactersInString:[NSString stringWithUTF8String:ggvalidchars]] mutableCopy];
+            [legalCharacters addCharactersInString:@"-"];
+        }
+        else
+        {
+            // Not a supported type!
+            return NO;
+        }
+
+        // Allow spaces (we'll strip them) during validation
+        NSMutableCharacterSet *legalCharactersSet = [legalCharacters mutableCopy];
+        [legalCharactersSet addCharactersInString:@" "];
+
+        // Validate characters against the allowed set
+        NSRange illegalRange = [normalized rangeOfCharacterFromSet:[legalCharactersSet invertedSet]];
+        if (illegalRange.location != NSNotFound)
+        {
+            unichar offendingCharacter = [normalized characterAtIndex:illegalRange.location];
+            NSLog(@"Offending character: %C", offendingCharacter);
+            return NO;
+        }
+        
+        if ([type isEqualToString:CheatTypeActionReplay] || [type isEqualToString:CheatTypeGameGenie])
+        {
+            // Remove spaces; keep hyphens because decode_cheat expects them for 16-bit GG (ABCD-EFGH)
+            NSString *sanitizedCode = [[normalized stringByReplacingOccurrencesOfString:@" " withString:@""] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+
+            // Basic length checks per type
+            if ([type isEqualToString:CheatTypeGameGenie])
+            {
+                // Accept 16-bit GG codes in form ABCD-EFGH (length 9)
+                if (sanitizedCode.length != 9)
+                {
+                    return NO;
+                }
+            }
+            else if ([type isEqualToString:CheatTypeActionReplay])
+            {
+                // Expect MD AR as AAAAAA:DDDD (length 11) or SMS as xxAAAA:DD (length 9)
+                if (!(sanitizedCode.length == 11 || sanitizedCode.length == 9))
+                {
+                    return NO;
+                }
+            }
+            
+            char cheatCString[32];
+            if (![sanitizedCode getCString:cheatCString maxLength:sizeof(cheatCString) encoding:NSUTF8StringEncoding])
+            {
+                NSLog(@"Failed to convert to cString: %@", sanitizedCode);
+                return NO;
+            }
+            int cheatCount = (int)self.cheatCount;
+            NSInteger length = decode_cheat(cheatCString, cheatCount);
+            if (length == 0)
+            {
+                NSLog(@"Failed to decode cheat: %@", sanitizedCode);
+                return NO;
+            }
+            
+            cheatlist[self.cheatCount].enable = 1;
+                     
+            self.cheatCount++;
+            
+            return YES;
+            
+        }
     }
-    int cheatCount = (int)self.cheatCount;
-    NSInteger length = decode_cheat(cheatCString, cheatCount);
-    if (length == 0)
-    {
-        NSLog(@"Failed to decode cheat: %@", mutableCheatCode);
-        return NO;
-    }
     
-    cheatlist[self.cheatCount].enable = 1;
-    
-    self.cheatCount++;
-    maxcheats++;
-    
-    return YES;
+    return NO;
 }
 
 - (void)resetCheats
