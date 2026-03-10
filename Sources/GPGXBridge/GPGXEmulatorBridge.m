@@ -260,91 +260,94 @@ int GPGXGameSaveSize = 0x10000;
 
 - (BOOL)addCheatCode:(NSString *)cheatCode type:(NSString *)type
 {
+    NSMutableCharacterSet *legalCharacterSet = nil;
+    if ([type isEqualToString:CheatTypeActionReplay])
+    {
+        legalCharacterSet = [[NSMutableCharacterSet hexadecimalCharacterSet] mutableCopy];
+        [legalCharacterSet addCharactersInString:@":"];
+    }
+    else if ([type isEqualToString:CheatTypeGameGenie])
+    {
+        legalCharacterSet = [[NSMutableCharacterSet characterSetWithCharactersInString:[NSString stringWithUTF8String:ggvalidchars]] mutableCopy];
+        [legalCharacterSet addCharactersInString:@"-"];
+    }
+    else
+    {
+        NSLog(@"Unsupported cheat type: %@", type);
+        return NO;
+    }
+
+    [legalCharacterSet addCharactersInString:@" "];
+
     NSArray<NSString *> *codes = [cheatCode componentsSeparatedByString:@"\n"];
+    BOOL addedCheat = NO;
     
     for (NSString *code in codes)
     {
-        // Normalize input first: trim whitespace/newlines and uppercase for consistent validation
         NSString *normalized = [[code stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] uppercaseString];
-
-        // Build legal character set based on type
-        NSMutableCharacterSet *legalCharacters = nil;
-        if ([type isEqualToString:CheatTypeActionReplay])
+        if (normalized.length == 0)
         {
-            legalCharacters = [[NSMutableCharacterSet hexadecimalCharacterSet] mutableCopy];
-            [legalCharacters addCharactersInString:@":"];
-        }
-        else if ([type isEqualToString:CheatTypeGameGenie])
-        {
-            legalCharacters = [[NSMutableCharacterSet characterSetWithCharactersInString:[NSString stringWithUTF8String:ggvalidchars]] mutableCopy];
-            [legalCharacters addCharactersInString:@"-"];
-        }
-        else
-        {
-            // Not a supported type!
-            return NO;
+            continue;
         }
 
-        // Allow spaces (we'll strip them) during validation
-        NSMutableCharacterSet *legalCharactersSet = [legalCharacters mutableCopy];
-        [legalCharactersSet addCharactersInString:@" "];
-
-        // Validate characters against the allowed set
-        NSRange illegalRange = [normalized rangeOfCharacterFromSet:[legalCharactersSet invertedSet]];
+        NSRange illegalRange = [normalized rangeOfCharacterFromSet:[legalCharacterSet invertedSet]];
         if (illegalRange.location != NSNotFound)
         {
-            unichar offendingCharacter = [normalized characterAtIndex:illegalRange.location];
-            NSLog(@"Offending character: %C", offendingCharacter);
+            NSLog(@"Offending character: %C", [normalized characterAtIndex:illegalRange.location]);
             return NO;
         }
-        
-        if ([type isEqualToString:CheatTypeActionReplay] || [type isEqualToString:CheatTypeGameGenie])
-        {
-            // Remove spaces; keep hyphens because decode_cheat expects them for 16-bit GG (ABCD-EFGH)
-            NSString *sanitizedCode = [[normalized stringByReplacingOccurrencesOfString:@" " withString:@""] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 
-            // Basic length checks per type
-            if ([type isEqualToString:CheatTypeGameGenie])
+        NSString *sanitizedCode = [normalized stringByReplacingOccurrencesOfString:@" " withString:@""];
+
+        if ([type isEqualToString:CheatTypeGameGenie])
+        {
+            BOOL is16BitFormat = (sanitizedCode.length == 9 && [sanitizedCode characterAtIndex:4] == '-');
+            // We can cut this or comment it out for now, as we
+            // don't really support the Sega Game Gear (8-bit)
+            BOOL is8BitFormat = (sanitizedCode.length == 11 &&
+                                 [sanitizedCode characterAtIndex:3] == '-' &&
+                                 [sanitizedCode characterAtIndex:7] == '-');
+            if (!is16BitFormat && !is8BitFormat)
             {
-                // Accept 16-bit GG codes in form ABCD-EFGH (length 9)
-                if (sanitizedCode.length != 9)
-                {
-                    return NO;
-                }
-            }
-            else if ([type isEqualToString:CheatTypeActionReplay])
-            {
-                // Expect MD AR as AAAAAA:DDDD (length 11) or SMS as xxAAAA:DD (length 9)
-                if (!(sanitizedCode.length == 11 || sanitizedCode.length == 9))
-                {
-                    return NO;
-                }
-            }
-            
-            char cheatCString[32];
-            if (![sanitizedCode getCString:cheatCString maxLength:sizeof(cheatCString) encoding:NSUTF8StringEncoding])
-            {
-                NSLog(@"Failed to convert to cString: %@", sanitizedCode);
+                NSLog(@"Invalid Game Genie format: %@", sanitizedCode);
                 return NO;
             }
-            int cheatCount = (int)self.cheatCount;
-            NSInteger length = decode_cheat(cheatCString, cheatCount);
-            if (length == 0)
-            {
-                NSLog(@"Failed to decode cheat: %@", sanitizedCode);
-                return NO;
-            }
-            
-            cheatlist[self.cheatCount].enable = 1;
-                     
-            self.cheatCount++;
-            
-            return YES;
-            
         }
+        else if ([type isEqualToString:CheatTypeActionReplay])
+        {
+            BOOL isValidLength = (sanitizedCode.length == 9 || sanitizedCode.length == 11);
+            BOOL hasExpectedSeparator = (sanitizedCode.length > 6 && [sanitizedCode characterAtIndex:6] == ':');
+            if (!isValidLength || !hasExpectedSeparator)
+            {
+                NSLog(@"Invalid Action Replay format: %@", sanitizedCode);
+                return NO;
+            }
+        }
+
+        char cheatCString[32];
+        if (![sanitizedCode getCString:cheatCString maxLength:sizeof(cheatCString) encoding:NSUTF8StringEncoding])
+        {
+            NSLog(@"Failed to convert to cString: %@", sanitizedCode);
+            return NO;
+        }
+
+        int cheatCount = (int)self.cheatCount;
+        NSInteger length = decode_cheat(cheatCString, cheatCount);
+        if (length == 0)
+        {
+            NSLog(@"Failed to decode cheat: %@", sanitizedCode);
+            return NO;
+        }
+
+        cheatlist[self.cheatCount].enable = 1;
+        // The bridge owns this!
+        self.cheatCount++;
+        // The C-core owns this! Without this, the cheats don't apply at all.
+        maxcheats++;
+        addedCheat = YES;
     }
     
-    return NO;
+    return addedCheat;
 }
 
 - (void)resetCheats
