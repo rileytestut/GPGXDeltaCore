@@ -263,7 +263,7 @@ int GPGXGameSaveSize = 0x10000;
     NSMutableCharacterSet *legalCharacterSet = nil;
     if ([type isEqualToString:CheatTypeActionReplay])
     {
-        legalCharacterSet = [[NSMutableCharacterSet hexadecimalCharacterSet] mutableCopy];
+        legalCharacterSet = [[NSMutableCharacterSet characterSetWithCharactersInString:[NSString stringWithUTF8String:arvalidchars]] mutableCopy];
         [legalCharacterSet addCharactersInString:@":"];
     }
     else if ([type isEqualToString:CheatTypeGameGenie])
@@ -278,74 +278,69 @@ int GPGXGameSaveSize = 0x10000;
     }
 
     [legalCharacterSet addCharactersInString:@" "];
-
-    NSArray<NSString *> *codes = [cheatCode componentsSeparatedByString:@"\n"];
     BOOL addedCheat = NO;
     
-    for (NSString *code in codes)
+    NSString *normalized = [[cheatCode stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] uppercaseString];
+    if (normalized.length == 0)
     {
-        NSString *normalized = [[code stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] uppercaseString];
-        if (normalized.length == 0)
-        {
-            continue;
-        }
-
-        NSRange illegalRange = [normalized rangeOfCharacterFromSet:[legalCharacterSet invertedSet]];
-        if (illegalRange.location != NSNotFound)
-        {
-            NSLog(@"Offending character: %C", [normalized characterAtIndex:illegalRange.location]);
-            return NO;
-        }
-
-        NSString *sanitizedCode = [normalized stringByReplacingOccurrencesOfString:@" " withString:@""];
-
-        if ([type isEqualToString:CheatTypeGameGenie])
-        {
-            BOOL is16BitFormat = (sanitizedCode.length == 9 && [sanitizedCode characterAtIndex:4] == '-');
-            // We can cut this or comment it out for now, as we
-            // don't really support the Sega Game Gear (8-bit)
-            BOOL is8BitFormat = (sanitizedCode.length == 11 &&
-                                 [sanitizedCode characterAtIndex:3] == '-' &&
-                                 [sanitizedCode characterAtIndex:7] == '-');
-            if (!is16BitFormat && !is8BitFormat)
-            {
-                NSLog(@"Invalid Game Genie format: %@", sanitizedCode);
-                return NO;
-            }
-        }
-        else if ([type isEqualToString:CheatTypeActionReplay])
-        {
-            BOOL isValidLength = (sanitizedCode.length == 9 || sanitizedCode.length == 11);
-            BOOL hasExpectedSeparator = (sanitizedCode.length > 6 && [sanitizedCode characterAtIndex:6] == ':');
-            if (!isValidLength || !hasExpectedSeparator)
-            {
-                NSLog(@"Invalid Action Replay format: %@", sanitizedCode);
-                return NO;
-            }
-        }
-
-        char cheatCString[32];
-        if (![sanitizedCode getCString:cheatCString maxLength:sizeof(cheatCString) encoding:NSUTF8StringEncoding])
-        {
-            NSLog(@"Failed to convert to cString: %@", sanitizedCode);
-            return NO;
-        }
-
-        int cheatCount = (int)self.cheatCount;
-        NSInteger length = decode_cheat(cheatCString, cheatCount);
-        if (length == 0)
-        {
-            NSLog(@"Failed to decode cheat: %@", sanitizedCode);
-            return NO;
-        }
-
-        cheatlist[self.cheatCount].enable = 1;
-        // The bridge owns this!
-        self.cheatCount++;
-        // The C-core owns this! Without this, the cheats don't apply at all.
-        maxcheats++;
-        addedCheat = YES;
+        return NO;
     }
+
+    NSRange illegalRange = [normalized rangeOfCharacterFromSet:[legalCharacterSet invertedSet]];
+    if (illegalRange.location != NSNotFound)
+    {
+        NSLog(@"Offending character: %C", [normalized characterAtIndex:illegalRange.location]);
+        return NO;
+    }
+
+    NSString *sanitizedCode = [normalized stringByReplacingOccurrencesOfString:@" " withString:@""];
+    
+    if ([type isEqualToString:CheatTypeGameGenie])
+    {
+        BOOL is16BitFormat = (sanitizedCode.length == 9 && [sanitizedCode characterAtIndex:4] == '-');
+        // We can cut this or comment it out for now, as we
+        // don't really support the Sega Game Gear (8-bit)
+        BOOL is8BitFormat = (sanitizedCode.length == 11 &&
+                             [sanitizedCode characterAtIndex:3] == '-' &&
+                             [sanitizedCode characterAtIndex:7] == '-');
+        if (!is16BitFormat && !is8BitFormat)
+        {
+            NSLog(@"Invalid Game Genie format: %@", sanitizedCode);
+            return NO;
+        }
+    }
+    else if ([type isEqualToString:CheatTypeActionReplay])
+    {
+        BOOL isValidLength = (sanitizedCode.length == 9 || sanitizedCode.length == 11);
+        BOOL hasExpectedSeparator = (sanitizedCode.length > 6 && [sanitizedCode characterAtIndex:6] == ':');
+        if (!isValidLength || !hasExpectedSeparator)
+        {
+            NSLog(@"Invalid Action Replay format: %@", sanitizedCode);
+            return NO;
+        }
+    }
+    
+    char cheatCString[32];
+    if (![sanitizedCode getCString:cheatCString maxLength:sizeof(cheatCString) encoding:NSUTF8StringEncoding])
+    {
+        NSLog(@"Failed to convert to cString: %@", sanitizedCode);
+        return NO;
+    }
+    
+    int cheatCount = (int)self.cheatCount;
+    NSInteger length = decode_cheat(cheatCString, cheatCount);
+    if (length == 0)
+    {
+        NSLog(@"Failed to decode cheat: %@", sanitizedCode);
+        return NO;
+    }
+
+    cheatlist[self.cheatCount].enable = 1;
+    // The bridge owns this!
+    self.cheatCount++;
+    // The C-core owns this! Without this, the cheats don't apply at all.
+    maxcheats++;
+    addedCheat = YES;
     
     return addedCheat;
 }
@@ -376,6 +371,7 @@ void osd_input_update(void)
 {
 }
 
+// Adapted from GPGX: gx/gui/cheats.c
 static u32 decode_cheat(char *string, int index)
 {
   char *p;
@@ -583,6 +579,7 @@ static u32 decode_cheat(char *string, int index)
   return len;
 }
 
+// Adapted from GPGX: gx/gui/cheats.c
 static void apply_cheats(void)
 {
   u8 *ptr;
@@ -637,6 +634,7 @@ static void apply_cheats(void)
   }
 }
 
+// Adapted from GPGX: gx/gui/cheats.c
 static void clear_cheats(void)
 {
   int i = maxcheats;
@@ -672,6 +670,7 @@ static void clear_cheats(void)
   }
 }
 
+// Adapted from GPGX: gx/gui/cheats.c
 void RAMCheatUpdate(void)
 {
   int index, cnt = maxRAMcheats;
@@ -695,6 +694,7 @@ void RAMCheatUpdate(void)
   }
 }
 
+// Adapted from GPGX: gx/gui/cheats.c
 void ROMCheatUpdate(void)
 {
   int index, cnt = maxROMcheats;
