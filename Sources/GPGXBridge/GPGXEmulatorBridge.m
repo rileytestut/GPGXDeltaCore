@@ -72,8 +72,6 @@ int GPGXGameSaveSize = 0x10000;
 @property (nonatomic, readonly) NSMutableData *audioBuffer;
 @property (nonatomic, readonly) NSMutableData *videoBuffer;
 
-@property (nonatomic, readwrite) NSInteger cheatCount;
-
 @end
 
 @implementation GPGXEmulatorBridge
@@ -99,7 +97,6 @@ int GPGXGameSaveSize = 0x10000;
     {
         _audioBuffer = [[NSMutableData alloc] initWithLength:2048 * 2 * sizeof(int16_t)];
         _videoBuffer = [[NSMutableData alloc] initWithLength:GPGXVideoWidth * GPGXVideoHeight * sizeof(uint32_t)];
-        _cheatCount = 0;
     }
     
     return self;
@@ -327,18 +324,20 @@ int GPGXGameSaveSize = 0x10000;
         return NO;
     }
     
-    int cheatCount = (int)self.cheatCount;
-    NSInteger length = decode_cheat(cheatCString, cheatCount);
+    if (maxcheats >= MAX_CHEATS)
+    {
+        NSLog(@"Maximum number of cheats reached.");
+        return NO;
+    }
+
+    NSInteger length = decode_cheat(cheatCString, maxcheats);
     if (length == 0)
     {
         NSLog(@"Failed to decode cheat: %@", sanitizedCode);
         return NO;
     }
 
-    cheatlist[self.cheatCount].enable = 1;
-    // The bridge owns this!
-    self.cheatCount++;
-    // The C-core owns this! Without this, the cheats don't apply at all.
+    cheatlist[maxcheats].enable = 1;
     maxcheats++;
     addedCheat = YES;
     
@@ -348,7 +347,6 @@ int GPGXGameSaveSize = 0x10000;
 - (void)resetCheats
 {
     clear_cheats();
-    self.cheatCount = 0;
     maxcheats = 0;
 }
 
