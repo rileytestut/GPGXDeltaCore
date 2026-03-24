@@ -9,3 +9,6 @@
 #import "GPGXTypes.h"
 
 GameType const GameTypeGenesis = @"com.rileytestut.delta.game.genesis";
+
+CheatType const CheatTypeGameGenie = @"gameGenie";
+CheatType const CheatTypeActionReplay = @"actionReplay";

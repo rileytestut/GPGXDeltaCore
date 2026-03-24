@@ -14,3 +14,6 @@
 
 // Extensible Enums
 FOUNDATION_EXPORT GameType const GameTypeGenesis NS_SWIFT_NAME(genesis);
+
+FOUNDATION_EXPORT CheatType const CheatTypeGameGenie;
+FOUNDATION_EXPORT CheatType const CheatTypeActionReplay;
