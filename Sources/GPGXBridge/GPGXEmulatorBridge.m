@@ -270,6 +270,21 @@ int GPGXGameSaveSize = 0x10000;
 
 - (BOOL)addCheatCode:(NSString *)cheatCode type:(NSString *)type
 {
+    // Cheats with multiple codes store one code per line.
+    NSArray<NSString *> *codes = [cheatCode componentsSeparatedByString:@"\n"];
+    for (NSString *code in codes)
+    {
+        if (![self addSingleCheatCode:code type:type])
+        {
+            return NO;
+        }
+    }
+    
+    return YES;
+}
+
+- (BOOL)addSingleCheatCode:(NSString *)cheatCode type:(NSString *)type
+{
     NSMutableCharacterSet *legalCharacterSet = nil;
     if ([type isEqualToString:CheatTypeActionReplay])
     {
@@ -700,7 +715,15 @@ void RAMCheatUpdate(void)
     else
     {
       /* byte patch */
-      work_ram[cheatlist[index].address & 0xFFFF] = cheatlist[index].data;
+      if ((system_hw & SYSTEM_PBC) == SYSTEM_MD)
+      {
+        /* 68k RAM is stored as native-endian 16-bit words, so byte N lives at work_ram[N ^ 1] (see READ_BYTE in core/macros.h) */
+        work_ram[(cheatlist[index].address & 0xFFFF) ^ 1] = cheatlist[index].data;
+      }
+      else
+      {
+        work_ram[cheatlist[index].address & 0xFFFF] = cheatlist[index].data;
+      }
     }
   }
 }
