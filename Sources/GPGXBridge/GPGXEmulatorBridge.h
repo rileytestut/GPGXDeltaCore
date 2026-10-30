@@ -21,4 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+// Characters valid in a Genesis Game Genie code (uppercase only).
+FOUNDATION_EXPORT NSString *const GPGXGameGenieValidCharacters;
+
 NS_ASSUME_NONNULL_END

@@ -36,7 +36,7 @@
 #define MAX_CHEATS (350)
 #define MAX_DESC_LENGTH (63)
 
-static char ggvalidchars[] = "ABCDEFGHJKLMNPRSTVWXYZ0123456789";
+NSString *const GPGXGameGenieValidCharacters = @"ABCDEFGHJKLMNPRSTVWXYZ0123456789";
 static char arvalidchars[] = "0123456789ABCDEF";
 
 static int maxcheats = 0;
@@ -293,7 +293,7 @@ int GPGXGameSaveSize = 0x10000;
     }
     else if ([type isEqualToString:CheatTypeGameGenie])
     {
-        legalCharacterSet = [[NSMutableCharacterSet characterSetWithCharactersInString:[NSString stringWithUTF8String:ggvalidchars]] mutableCopy];
+        legalCharacterSet = [[NSMutableCharacterSet characterSetWithCharactersInString:GPGXGameGenieValidCharacters] mutableCopy];
         [legalCharacterSet addCharactersInString:@"-"];
     }
     else
@@ -400,6 +400,7 @@ void osd_input_update(void)
 // Adapted from GPGX: gx/gui/cheats.c
 static u32 decode_cheat(char *string, int index)
 {
+  const char *ggvalidchars = GPGXGameGenieValidCharacters.UTF8String;
   char *p;
   int i,n;
   u32 len = 0;
