@@ -38,7 +38,10 @@ public struct GPGX: DeltaCoreProtocol, Sendable
     public var videoFormat: VideoFormat { VideoFormat(format: .bitmap(.bgra8), dimensions: CGSize(width: 720, height: 576)) }
 
     public var supportedCheatFormats: Set<CheatFormat> {
-        let gameGenieFormat = CheatFormat(name: NSLocalizedString("Game Genie", comment: ""), format: "XXXX-YYYY", type: .gameGenie, allowedCodeCharacters: CharacterSet.uppercaseLetters.union(.decimalDigits))
+        // Include lowercase so pasted codes aren't stripped before being uppercased on save.
+        let gameGenieCharacters = CharacterSet(charactersIn: GPGXGameGenieValidCharacters + GPGXGameGenieValidCharacters.lowercased())
+        
+        let gameGenieFormat = CheatFormat(name: NSLocalizedString("Game Genie", comment: ""), format: "XXXX-YYYY", type: .gameGenie, allowedCodeCharacters: gameGenieCharacters)
         let actionReplayFormat = CheatFormat(name: NSLocalizedString("Action Replay", comment: ""), format: "XXXXXX:YYYY", type: .actionReplay)
         return [gameGenieFormat, actionReplayFormat]
     }

@@ -36,7 +36,7 @@
 #define MAX_CHEATS (350)
 #define MAX_DESC_LENGTH (63)
 
-static char ggvalidchars[] = "ABCDEFGHJKLMNPRSTVWXYZ0123456789";
+NSString *const GPGXGameGenieValidCharacters = @"ABCDEFGHJKLMNPRSTVWXYZ0123456789";
 static char arvalidchars[] = "0123456789ABCDEF";
 
 static int maxcheats = 0;
@@ -270,6 +270,21 @@ int GPGXGameSaveSize = 0x10000;
 
 - (BOOL)addCheatCode:(NSString *)cheatCode type:(NSString *)type
 {
+    // Cheats with multiple codes store one code per line.
+    NSArray<NSString *> *codes = [cheatCode componentsSeparatedByString:@"\n"];
+    for (NSString *code in codes)
+    {
+        if (![self addSingleCheatCode:code type:type])
+        {
+            return NO;
+        }
+    }
+    
+    return YES;
+}
+
+- (BOOL)addSingleCheatCode:(NSString *)cheatCode type:(NSString *)type
+{
     NSMutableCharacterSet *legalCharacterSet = nil;
     if ([type isEqualToString:CheatTypeActionReplay])
     {
@@ -278,7 +293,7 @@ int GPGXGameSaveSize = 0x10000;
     }
     else if ([type isEqualToString:CheatTypeGameGenie])
     {
-        legalCharacterSet = [[NSMutableCharacterSet characterSetWithCharactersInString:[NSString stringWithUTF8String:ggvalidchars]] mutableCopy];
+        legalCharacterSet = [[NSMutableCharacterSet characterSetWithCharactersInString:GPGXGameGenieValidCharacters] mutableCopy];
         [legalCharacterSet addCharactersInString:@"-"];
     }
     else
@@ -385,6 +400,7 @@ void osd_input_update(void)
 // Adapted from GPGX: gx/gui/cheats.c
 static u32 decode_cheat(char *string, int index)
 {
+  const char *ggvalidchars = GPGXGameGenieValidCharacters.UTF8String;
   char *p;
   int i,n;
   u32 len = 0;
@@ -700,7 +716,15 @@ void RAMCheatUpdate(void)
     else
     {
       /* byte patch */
-      work_ram[cheatlist[index].address & 0xFFFF] = cheatlist[index].data;
+      if ((system_hw & SYSTEM_PBC) == SYSTEM_MD)
+      {
+        /* 68k RAM is stored as native-endian 16-bit words, so byte N lives at work_ram[N ^ 1] (see READ_BYTE in core/macros.h) */
+        work_ram[(cheatlist[index].address & 0xFFFF) ^ 1] = cheatlist[index].data;
+      }
+      else
+      {
+        work_ram[cheatlist[index].address & 0xFFFF] = cheatlist[index].data;
+      }
     }
   }
 }
